@@ -1,0 +1,129 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  TicketRq:
+    description: User represents the user for this application
+    properties:
+      name:
+        description: The name for this Ticket options 
+        type: string
+        x-go-name: Name
+      desc:
+        description: The description for this Ticket options 
+        type: string
+        x-go-name: Desc
+        
+      allocation:
+        description: The allocation for this Ticket options 
+        format: int64
+        type: integer
+        x-go-name: Allocation
+      
+    required:
+    - name
+    - desc
+    - allocation
+    type: object
+    x-go-package: github.com/yildizarzu/go-gorm-restapi
+  TicketRs:
+    description: User represents the user for this application
+    properties:
+      id:
+        description: The allocation for this Ticket options 
+        format: int64
+        type: integer
+        x-go-name: ID
+      name:
+        description: The name for this Ticket options 
+        type: string
+        x-go-name: Name
+      desc:
+        description: The description for this Ticket options 
+        type: string
+        x-go-name: Desc
+        
+      allocation:
+        description: The allocation for this Ticket options 
+        format: int64
+        type: integer
+        x-go-name: Allocation
+  PurchaseFromTicketOptionRq:
+    description: User represents the user for this application
+    properties:
+      quantity:
+        description: The quantity for this Ticket options 
+        format: int64
+        type: integer
+        x-go-name: Quantity
+      user_id:
+        description: The user id for this Ticket options 
+        type: string
+        x-go-name: User_id
+        
+    required:
+    - quantity
+    - user_id
+    - allocation
+    type: object
+    x-go-package: github.com/yildizarzu/go-gorm-restapi
+host: localhost
+info:
+  description: We are mainly looking for clean, well architected, tested code that highlights your skills and shows technical proficiency.A partial solution is still very useful, and you can describe your thoughts for next steps that would be taken. 
+
+  title: GoWit Backend Case Study
+  version: 0.0.1
+paths:
+  /ticket_options:
+    post:
+      description: Create a ticket_option with an allocation of tickets available to purchase
+      operationId: CreateTicketOption
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/TicketRq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user response
+          schema:
+            items:
+              $ref: '#/definitions/TicketRs'
+            type: array
+    
+  /ticket_options/{id}:
+    get:
+      description: Get ticket by id
+      operationId: GetTickets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user response
+          schema:
+            items:
+              $ref: '#/definitions/TicketRs'
+            type: array
+            
+  /ticket_options/{id}/purchases:
+    post:
+      description: Purchase a quantity of tickets from the allocation of the given ticket_option
+      operationId: PurchaseFromTicketOption
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/PurchaseFromTicketOptionRq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user response
+          
+produces:
+- application/json
+schemes:
+- https
+swagger: "2.0"
