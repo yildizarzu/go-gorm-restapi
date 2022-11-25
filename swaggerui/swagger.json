@@ -71,7 +71,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Ticket"
+              "$ref": "#/definitions/TicketCreate"
             }
           }
         ],
@@ -133,6 +133,25 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/yildizarzu/go-gorm-restapi/models"
+    },
+    "TicketCreate": {
+      "type": "object",
+      "properties": {
+        "allocation": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Allocation"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Desc"
         },
         "name": {
           "type": "string",

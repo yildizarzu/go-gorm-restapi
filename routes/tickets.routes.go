@@ -64,7 +64,7 @@ func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 //     description: Ticket options body for allocation
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/Ticket"
+//       "$ref": "#/definitions/TicketCreate"
 // responses:
 //  '200':
 //    description: Created Ticket Body
