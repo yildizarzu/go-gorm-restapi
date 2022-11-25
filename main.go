@@ -14,21 +14,14 @@ import (
 func main() {
 	fmt.Println("Hello Word")
 	db.DBConnection()
-	db.DB.AutoMigrate(&models.Task{})
-	db.DB.AutoMigrate(&models.User{})
+	db.DB.AutoMigrate(&models.Ticket{})
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", routes.HomeHandler)
-
-	r.HandleFunc("/tasks", routes.GetTasksHandler).Methods("GET")
-	r.HandleFunc("/tasks/{id}", routes.GetTaskHandler).Methods("GET")
-	r.HandleFunc("/tasks", routes.CreateTaskHandler).Methods("POST")
-
-	r.HandleFunc("/users", routes.GetUsersHandler).Methods("GET")
-	r.HandleFunc("/user/{id}", routes.GetUserHandler).Methods("GET")
-	r.HandleFunc("/users", routes.PostUsersHandler).Methods("POST")
-	r.HandleFunc("/users", routes.DeleteUsersHandler).Methods("DELETE")
-	//r.HandleFunc("/movies", getMovies).Methods("GET")
+	r.HandleFunc("/ticket_options", routes.GetTicketsHandler).Methods("GET")
+	r.HandleFunc("/ticket_options", routes.CreateTicketOption).Methods("POST")
+	r.HandleFunc("/ticket/{id}", routes.GetTicketHandler).Methods("GET")
+	r.HandleFunc("/ticket_options/{id}/purchases", routes.PurchaseFromTicketOptionHandler).Methods("POST")
 
 	fmt.Println("Starting Server t port 8000 \n")
 	log.Fatal(http.ListenAndServe(":8000", r))

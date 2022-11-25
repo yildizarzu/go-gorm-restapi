@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var DSN = "host=localhost user=postgres password=Asdasd123* dbname=postgres port=5432"
+var DSN = "host=postgres user=arzu password=12345678 dbname=postgres port=5432"
 var DB *gorm.DB
 var err error
 
