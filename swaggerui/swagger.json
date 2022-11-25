@@ -1,0 +1,160 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Package main",
+    "version": "0.0.1"
+  },
+  "host": "localhost:8000",
+  "basePath": "/",
+  "paths": {
+    "/ticket/{id}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "getTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found Ticket Body",
+            "schema": {
+              "$ref": "#/definitions/Ticket"
+            }
+          }
+        }
+      }
+    },
+    "/ticket_options": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "getTickets",
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Ticket"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "postTicket",
+        "parameters": [
+          {
+            "description": "Ticket options body for allocation",
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ticket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Ticket Body",
+            "schema": {
+              "$ref": "#/definitions/Ticket"
+            }
+          }
+        }
+      }
+    },
+    "/ticket_options/{id}/purchases": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "purchaseTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Ticket Purchase body for purchase",
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ticket_Purchase"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase Complete response"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Ticket": {
+      "type": "object",
+      "properties": {
+        "allocation": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Allocation"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/yildizarzu/go-gorm-restapi/models"
+    },
+    "Ticket_Purchase": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Quantity"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "github.com/yildizarzu/go-gorm-restapi/models"
+    }
+  }
+}

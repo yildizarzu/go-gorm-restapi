@@ -9,12 +9,37 @@ import (
 	"github.com/yildizarzu/go-gorm-restapi/models"
 )
 
+// swagger:operation GET /ticket_options getTickets
+// ---
+// produces:
+// - application/json
+// responses:
+//   '200':
+//     description: pet response
+//     schema:
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Ticket"
 func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
 	var tickets []models.Ticket
 	db.DB.Find(&tickets)
 	json.NewEncoder(w).Encode(&tickets)
 }
 
+// swagger:operation GET /ticket/{id} getTicket
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - name: id
+//     in: path
+//     required: true
+//     type: string
+// responses:
+//   '200':
+//     description: Found Ticket Body
+//     schema:
+//       "$ref": "#/definitions/Ticket"
 func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
@@ -29,6 +54,22 @@ func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&ticket)
 }
 
+// swagger:operation POST /ticket_options postTicket
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - name: Body
+//     in: body
+//     description: Ticket options body for allocation
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/Ticket"
+// responses:
+//  '200':
+//    description: Created Ticket Body
+//    schema:
+//      "$ref": "#/definitions/Ticket"
 func CreateTicketOption(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
@@ -44,6 +85,24 @@ func CreateTicketOption(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// swagger:operation POST /ticket_options/{id}/purchases purchaseTicket
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - name: id
+//     in: path
+//     required: true
+//     type: string
+//   - name: Body
+//     in: body
+//     description: Ticket Purchase body for purchase
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/Ticket_Purchase"
+// responses:
+//  '200':
+//    description: Purchase Complete response
 func PurchaseFromTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
@@ -61,5 +120,4 @@ func PurchaseFromTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Not available ticket allocation"))
 		w.WriteHeader(http.StatusNotFound)
 	}
-
 }
