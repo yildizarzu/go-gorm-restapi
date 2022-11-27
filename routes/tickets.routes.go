@@ -59,8 +59,7 @@ func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 	db_Result := db.DB.First(&ticket, params["id"]).Find(&ticket)
 
 	if ticket.ID == 0 || errors.Is(db_Result.Error, gorm.ErrRecordNotFound) {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Ticket not found"))
+		http.Error(w, "Ticket not found", http.StatusNotFound)
 		return
 	} else {
 		json.NewEncoder(w).Encode(&ticket)
@@ -90,9 +89,8 @@ func CreateTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
 
-	if ticket.Name == "" && ticket.Desc == "" && ticket.Allocation == 0 {
-		w.Write([]byte("Body Error"))
-		w.WriteHeader(http.StatusBadRequest)
+	if ticket.Name == "" || ticket.Desc == "" || ticket.Allocation == 0 {
+		http.Error(w, "Body Error", http.StatusBadRequest)
 		return
 	} else {
 		fmt.Println("Test Success" + ticket.Name)
@@ -100,8 +98,7 @@ func CreateTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 		err := createdTicket.Error
 
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
 		json.NewEncoder(w).Encode(&ticket)
@@ -135,8 +132,7 @@ func PurchaseFromTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 	result := db.DB.First(&ticket, params["id"])
 
 	if ticket.ID == 0 || errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		w.Write([]byte("Ticket not found"))
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, "Ticket not found", http.StatusNotFound)
 	} else {
 		var ticketPurchase models.Ticket_Purchase
 		json.NewDecoder(r.Body).Decode(&ticketPurchase)
@@ -147,8 +143,7 @@ func PurchaseFromTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("Purchase Complete"))
 			w.WriteHeader(http.StatusOK)
 		} else {
-			w.Write([]byte("Not available ticket allocation"))
-			w.WriteHeader(http.StatusNotFound)
+			http.Error(w, "Not available ticket allocation", http.StatusNotFound)
 		}
 
 	}
