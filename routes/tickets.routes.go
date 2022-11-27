@@ -2,12 +2,14 @@ package routes
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/yildizarzu/go-gorm-restapi/db"
 	"github.com/yildizarzu/go-gorm-restapi/models"
+	"gorm.io/gorm"
 )
 
 // swagger:operation GET /ticket_options getTickets
@@ -47,15 +49,16 @@ func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
 func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
-	db.DB.First(&ticket, params["id"])
+	db_Result := db.DB.First(&ticket, params["id"]).Find(&ticket)
 
-	if ticket.ID == 0 {
+	if ticket.ID == 0 || errors.Is(db_Result.Error, gorm.ErrRecordNotFound) {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Ticket not found"))
 		return
+	} else {
+		json.NewEncoder(w).Encode(&ticket)
+		w.WriteHeader(http.StatusOK)
 	}
-
-	json.NewEncoder(w).Encode(&ticket)
 }
 
 // swagger:operation POST /ticket_options postTicket
