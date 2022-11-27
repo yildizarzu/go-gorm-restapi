@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -194,16 +195,24 @@ func TestTicketPurchaseFailed(t *testing.T) {
 func MockCreateTicketOption(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
-	createdTicket := db.DB.Create(&ticket)
-	err := createdTicket.Error
 
-	if err != nil {
+	if ticket.Name == "" && ticket.Desc == "" && ticket.Allocation == 0 {
+		w.Write([]byte("Body Error"))
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-	}
+		return
+	} else {
+		fmt.Println("Test Success" + ticket.Name)
+		createdTicket := db.DB.Create(&ticket)
+		err := createdTicket.Error
 
-	json.NewEncoder(w).Encode(&ticket)
-	w.WriteHeader(http.StatusOK)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
+
+		json.NewEncoder(w).Encode(&ticket)
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 func MockGetTicket(w http.ResponseWriter, r *http.Request) {

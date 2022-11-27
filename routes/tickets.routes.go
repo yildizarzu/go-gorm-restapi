@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -78,16 +79,24 @@ func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 func CreateTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
-	createdTicket := db.DB.Create(&ticket)
-	err := createdTicket.Error
 
-	if err != nil {
+	if ticket.Name == "" && ticket.Desc == "" && ticket.Allocation == 0 {
+		w.Write([]byte("Body Error"))
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-	}
+		return
+	} else {
+		fmt.Println("Test Success" + ticket.Name)
+		createdTicket := db.DB.Create(&ticket)
+		err := createdTicket.Error
 
-	json.NewEncoder(w).Encode(&ticket)
-	w.WriteHeader(http.StatusOK)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
+
+		json.NewEncoder(w).Encode(&ticket)
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 // swagger:operation POST /ticket_options/{id}/purchases purchaseTicket
