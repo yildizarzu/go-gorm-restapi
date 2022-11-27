@@ -24,7 +24,6 @@ var mockTicket = models.Ticket{
 	Allocation: 2,
 }
 
-// TEST
 func TestCreateTicketOptionSuccessful(t *testing.T) {
 	db.DBConnection("host=postgres user=arzu password=12345678 dbname=testpostgres port=5432")
 	db.DB.Exec("DROP TABLE IF EXISTS tickets")
@@ -236,12 +235,11 @@ func TestGetTickets(t *testing.T) {
 	}
 }
 
-// FAKE HANDLER
 func MockCreateTicketOption(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
 
-	if ticket.Name == "" && ticket.Desc == "" && ticket.Allocation == 0 {
+	if ticket.Name == "" || ticket.Desc == "" || ticket.Allocation == 0 {
 		w.Write([]byte("Body Error"))
 		w.WriteHeader(http.StatusBadRequest)
 		return
