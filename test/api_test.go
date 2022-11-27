@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/yildizarzu/go-gorm-restapi/db"
 	"github.com/yildizarzu/go-gorm-restapi/models"
 )
 
@@ -21,9 +22,9 @@ var mockTicket = models.Ticket{
 }
 
 func TestCreateTicketOptionSuccessful(t *testing.T) {
-	Connection()
-	DB.Exec("DROP TABLE IF EXISTS tickets")
-	DB.AutoMigrate(&models.Ticket{})
+	db.DBConnection("host=postgres user=arzu password=12345678 dbname=testpostgres port=5432")
+	db.DB.Exec("DROP TABLE IF EXISTS tickets")
+	db.DB.AutoMigrate(&models.Ticket{})
 
 	body := bytes.NewBufferString(`
 		{
@@ -51,7 +52,7 @@ func TestCreateTicketOptionSuccessful(t *testing.T) {
 }
 
 func TestCreateTicketOptionFailed(t *testing.T) {
-	Connection()
+	db.DBConnection("host=postgres user=arzu password=12345678 dbname=testpostgres port=5432")
 	body := bytes.NewBufferString(`
 		{
 			"name": 3,
@@ -193,7 +194,7 @@ func TestTicketPurchaseFailed(t *testing.T) {
 func MockCreateTicketOption(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
-	createdTicket := DB.Create(&ticket)
+	createdTicket := db.DB.Create(&ticket)
 	err := createdTicket.Error
 
 	if err != nil {
@@ -208,7 +209,7 @@ func MockCreateTicketOption(w http.ResponseWriter, r *http.Request) {
 func MockGetTicket(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
-	DB.First(&ticket, params["id"])
+	db.DB.First(&ticket, params["id"])
 
 	if ticket.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -222,13 +223,13 @@ func MockGetTicket(w http.ResponseWriter, r *http.Request) {
 func MockPurchaseTicket(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
-	DB.First(&ticket, params["id"])
+	db.DB.First(&ticket, params["id"])
 
 	var purchase models.Ticket_Purchase
 	json.NewDecoder(r.Body).Decode(&purchase)
 
 	if ticket.Allocation >= purchase.Quantity {
-		DB.Model(&models.Ticket{}).Where("id = ?", ticket.ID).Update("allocation", ticket.Allocation-purchase.Quantity)
+		db.DB.Model(&models.Ticket{}).Where("id = ?", ticket.ID).Update("allocation", ticket.Allocation-purchase.Quantity)
 
 		w.Write([]byte("Purchase Complete"))
 		w.WriteHeader(http.StatusOK)

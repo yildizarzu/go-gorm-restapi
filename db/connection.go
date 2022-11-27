@@ -8,11 +8,11 @@ import (
 )
 
 var DSN = "host=postgres user=arzu password=12345678 dbname=postgres port=5432"
-var Db *gorm.DB
+var DB *gorm.DB
 var err error
 
 func DBConnection(Dsn string) error {
-	Db, err = gorm.Open(postgres.Open(DSN), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(DSN), &gorm.Config{})
 	if err != nil {
 		return errors.New("connection failed")
 	} else {
@@ -21,6 +21,6 @@ func DBConnection(Dsn string) error {
 }
 
 func DbDisconnect() {
-	db, _ := Db.DB()
+	db, _ := DB.DB()
 	db.Close()
 }
