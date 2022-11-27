@@ -1,48 +1,19 @@
 package test
 
 import (
-	"log"
 	"testing"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/yildizarzu/go-gorm-restapi/db"
 )
 
-func TestDBConnectionTrue(t *testing.T) {
-	var DNS = "host=postgres user=arzu password=12345678 dbname=testpostgres port=5432"
-	DBConnection(DNS)
-
+func TestDBConnectionSuccess(t *testing.T) {
+	db.DBConnection("host=postgres user=arzu password=12345678 dbname=testpostgres port=5432")
 }
 
-func TestDBConnectionFalse(t *testing.T) {
-	var DNS = "host=failedpostgres user=arzu password=12345678 dbname=failedpostgres port=5432"
-	DBConnection(DNS)
+func TestDBConnectionFailed(t *testing.T) {
+	err := db.DBConnection("host=postgres user=failed password=failed dbname=testpostgres port=5432")
 
-}
-
-var DB *gorm.DB
-
-func DBConnection(DSN string) {
-	var err error
-
-	DB, err = gorm.Open(postgres.Open(DSN), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("DB Connection")
+	if err == nil {
+		t.Errorf("FAILED: " + err.Error())
 	}
 }
-
-var DSN = "host=postgres user=arzu password=12345678 dbname=postgres port=5432"
-var err error
-
-func Connection() {
-	DB, err = gorm.Open(postgres.Open(DSN), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("DB Connection")
-	}
-}
-
-//dene

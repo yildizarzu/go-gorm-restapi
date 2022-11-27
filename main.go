@@ -13,8 +13,8 @@ import (
 
 func main() {
 	fmt.Println("Hello Word")
-	db.DBConnection()
-	db.DB.AutoMigrate(&models.Ticket{})
+	db.DBConnection("host=postgres user=arzu password=12345678 dbname=postgres port=5432")
+	db.Db.AutoMigrate(&models.Ticket{})
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", routes.HomeHandler)

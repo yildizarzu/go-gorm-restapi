@@ -1,21 +1,26 @@
 package db
 
 import (
-	"log"
+	"errors"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DSN = "host=postgres user=arzu password=12345678 dbname=postgres port=5432"
-var DB *gorm.DB
+var Db *gorm.DB
 var err error
 
-func DBConnection() {
-	DB, err = gorm.Open(postgres.Open(DSN), &gorm.Config{})
+func DBConnection(Dsn string) error {
+	Db, err = gorm.Open(postgres.Open(DSN), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		return errors.New("connection failed")
 	} else {
-		log.Println("DB Connection")
+		return nil
 	}
+}
+
+func DbDisconnect() {
+	db, _ := Db.DB()
+	db.Close()
 }
