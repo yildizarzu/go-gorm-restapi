@@ -16,6 +16,8 @@ func main() {
 	db.DBConnection("host=postgres user=arzu password=12345678 dbname=postgres port=5432")
 	db.DB.AutoMigrate(&models.Ticket{})
 
+	db.CreateTestDB()
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", routes.HomeHandler)
 	r.HandleFunc("/ticket_options", routes.GetTicketsHandler).Methods("GET")
