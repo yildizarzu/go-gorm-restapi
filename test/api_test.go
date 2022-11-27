@@ -232,6 +232,19 @@ func MockGetTicket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func MockGetTickets(w http.ResponseWriter, r *http.Request) {
+	var tickets []models.Ticket
+	result := db.DB.Find(&tickets)
+	if result.RowsAffected == 0 {
+		w.Write([]byte("Ticket not found"))
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		json.NewEncoder(w).Encode(&tickets)
+		w.WriteHeader(http.StatusOK)
+	}
+
+}
+
 func MockPurchaseTicket(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket

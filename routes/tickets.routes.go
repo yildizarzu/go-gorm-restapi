@@ -26,8 +26,15 @@ import (
 //	      "$ref": "#/definitions/Ticket"
 func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
 	var tickets []models.Ticket
-	db.DB.Find(&tickets)
-	json.NewEncoder(w).Encode(&tickets)
+	result := db.DB.Find(&tickets)
+	if result.RowsAffected == 0 {
+		w.Write([]byte("Ticket not found"))
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		json.NewEncoder(w).Encode(&tickets)
+		w.WriteHeader(http.StatusOK)
+	}
+
 }
 
 // swagger:operation GET /ticket/{id} getTicket
