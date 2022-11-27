@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_PASSWORD: 12345678
       POSTGRES_USER: arzu
-    ports: ["5432"]
+    ports: ["5432:5432"]
 
   pg-admin:
     image: dpage/pgadmin4

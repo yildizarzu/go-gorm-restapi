@@ -14,12 +14,13 @@ import (
 // produces:
 // - application/json
 // responses:
-//   '200':
-//     description: pet response
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Ticket"
+//
+//	'200':
+//	  description: pet response
+//	  schema:
+//	    type: array
+//	    items:
+//	      "$ref": "#/definitions/Ticket"
 func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
 	var tickets []models.Ticket
 	db.DB.Find(&tickets)
@@ -35,11 +36,13 @@ func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
 //     in: path
 //     required: true
 //     type: string
+//
 // responses:
-//   '200':
-//     description: Found Ticket Body
-//     schema:
-//       "$ref": "#/definitions/Ticket"
+//
+//	'200':
+//	  description: Found Ticket Body
+//	  schema:
+//	    "$ref": "#/definitions/Ticket"
 func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
@@ -64,13 +67,15 @@ func GetTicketHandler(w http.ResponseWriter, r *http.Request) {
 //     description: Ticket options body for allocation
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/TicketCreate"
+//     "$ref": "#/definitions/TicketCreate"
+//
 // responses:
-//  '200':
-//    description: Created Ticket Body
-//    schema:
-//      "$ref": "#/definitions/Ticket"
-func CreateTicketOption(w http.ResponseWriter, r *http.Request) {
+//
+//	'200':
+//	  description: Created Ticket Body
+//	  schema:
+//	    "$ref": "#/definitions/Ticket"
+func CreateTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
 	createdTicket := db.DB.Create(&ticket)
@@ -99,10 +104,12 @@ func CreateTicketOption(w http.ResponseWriter, r *http.Request) {
 //     description: Ticket Purchase body for purchase
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/Ticket_Purchase"
+//     "$ref": "#/definitions/Ticket_Purchase"
+//
 // responses:
-//  '200':
-//    description: Purchase Complete response
+//
+//	'200':
+//	  description: Purchase Complete response
 func PurchaseFromTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
