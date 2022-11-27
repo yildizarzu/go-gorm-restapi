@@ -132,18 +132,24 @@ func CreateTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 func PurchaseFromTicketOptionHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var ticket models.Ticket
-	db.DB.First(&ticket, params["id"])
+	result := db.DB.First(&ticket, params["id"])
 
-	var ticketPurchase models.Ticket_Purchase
-	json.NewDecoder(r.Body).Decode(&ticketPurchase)
-
-	if ticket.Allocation >= ticketPurchase.Quantity {
-
-		db.DB.Model(&models.Ticket{}).Where("id = ?", ticket.ID).Update("allocation", ticket.Allocation-ticketPurchase.Quantity)
-		w.Write([]byte("Purchase Complete"))
-		w.WriteHeader(http.StatusOK)
-	} else {
-		w.Write([]byte("Not available ticket allocation"))
+	if ticket.ID == 0 || errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		w.Write([]byte("Ticket not found"))
 		w.WriteHeader(http.StatusNotFound)
+	} else {
+		var ticketPurchase models.Ticket_Purchase
+		json.NewDecoder(r.Body).Decode(&ticketPurchase)
+
+		if ticket.Allocation >= ticketPurchase.Quantity {
+
+			db.DB.Model(&models.Ticket{}).Where("id = ?", ticket.ID).Update("allocation", ticket.Allocation-ticketPurchase.Quantity)
+			w.Write([]byte("Purchase Complete"))
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.Write([]byte("Not available ticket allocation"))
+			w.WriteHeader(http.StatusNotFound)
+		}
+
 	}
 }

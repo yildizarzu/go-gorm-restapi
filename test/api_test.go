@@ -24,6 +24,7 @@ var mockTicket = models.Ticket{
 	Allocation: 2,
 }
 
+// TEST
 func TestCreateTicketOptionSuccessful(t *testing.T) {
 	db.DBConnection("host=postgres user=arzu password=12345678 dbname=testpostgres port=5432")
 	db.DB.Exec("DROP TABLE IF EXISTS tickets")
@@ -58,9 +59,9 @@ func TestCreateTicketOptionFailed(t *testing.T) {
 	db.DBConnection("host=postgres user=arzu password=12345678 dbname=testpostgres port=5432")
 	body := bytes.NewBufferString(`
 		{
-			"name": 3,
+			"testName": "Ticket Name",
 			"desc": "Ticket Description",
-			"allocation": 2
+			"allocation": "2"
 		}
 	`)
 
@@ -73,12 +74,18 @@ func TestCreateTicketOptionFailed(t *testing.T) {
 	res := mockWriter.Result()
 	defer res.Body.Close()
 
-	var ticket models.Ticket
-	json.NewDecoder(res.Body).Decode(&ticket)
+	bodyBytes, err := io.ReadAll(res.Body)
 
-	if !reflect.DeepEqual(ticket, mockTicket) {
-		t.Errorf("FAILED: expected %v, got %v\n", mockTicket, ticket)
+	if err != nil {
+		t.Errorf(err.Error())
 	}
+
+	response := string(bodyBytes)
+
+	if !reflect.DeepEqual(response, "Body Error") {
+		t.Errorf("FAILED: expected %v, got %v\n", "Body Error", response)
+	}
+
 }
 
 func TestGetTicketSuccessful(t *testing.T) {
@@ -104,6 +111,12 @@ func TestGetTicketFailed(t *testing.T) {
 	mockRequest.Header.Set("Content-Type", "application/json")
 	mockWriter := httptest.NewRecorder()
 
+	vars := map[string]string{
+		"id": "101",
+	}
+
+	mockRequest = mux.SetURLVars(mockRequest, vars)
+
 	MockGetTicket(mockWriter, mockRequest)
 
 	res := mockWriter.Result()
@@ -121,6 +134,12 @@ func TestTicketAllocation(t *testing.T) {
 	mockRequest := httptest.NewRequest(http.MethodGet, "/ticket/1", nil)
 	mockRequest.Header.Set("Content-Type", "application/json")
 	mockWriter := httptest.NewRecorder()
+
+	vars := map[string]string{
+		"id": "1",
+	}
+
+	mockRequest = mux.SetURLVars(mockRequest, vars)
 
 	MockGetTicket(mockWriter, mockRequest)
 
@@ -194,6 +213,30 @@ func TestTicketPurchaseFailed(t *testing.T) {
 	}
 }
 
+func TestGetTickets(t *testing.T) {
+	mockRequest := httptest.NewRequest(http.MethodGet, "/ticket_options", nil)
+	mockRequest.Header.Set("Content-Type", "application/json")
+	mockWriter := httptest.NewRecorder()
+
+	MockGetTicket(mockWriter, mockRequest)
+
+	res := mockWriter.Result()
+	defer res.Body.Close()
+
+	bodyBytes, err := io.ReadAll(res.Body)
+
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	response := string(bodyBytes)
+
+	if reflect.DeepEqual(response, "Ticket not found") {
+		t.Errorf("FAILED: expected %v, got %v\n", "Ticket not found", response)
+	}
+}
+
+// FAKE HANDLER
 func MockCreateTicketOption(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	json.NewDecoder(r.Body).Decode(&ticket)
@@ -214,6 +257,31 @@ func MockCreateTicketOption(w http.ResponseWriter, r *http.Request) {
 
 		json.NewEncoder(w).Encode(&ticket)
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func MockPurchaseTicket(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var ticket models.Ticket
+	result := db.DB.First(&ticket, params["id"])
+
+	if ticket.ID == 0 || errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		w.Write([]byte("Ticket not found"))
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		var ticketPurchase models.Ticket_Purchase
+		json.NewDecoder(r.Body).Decode(&ticketPurchase)
+
+		if ticket.Allocation >= ticketPurchase.Quantity {
+
+			db.DB.Model(&models.Ticket{}).Where("id = ?", ticket.ID).Update("allocation", ticket.Allocation-ticketPurchase.Quantity)
+			w.Write([]byte("Purchase Complete"))
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.Write([]byte("Not available ticket allocation"))
+			w.WriteHeader(http.StatusNotFound)
+		}
+
 	}
 }
 
@@ -243,23 +311,4 @@ func MockGetTickets(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}
 
-}
-
-func MockPurchaseTicket(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	var ticket models.Ticket
-	db.DB.First(&ticket, params["id"])
-
-	var purchase models.Ticket_Purchase
-	json.NewDecoder(r.Body).Decode(&purchase)
-
-	if ticket.Allocation >= purchase.Quantity {
-		db.DB.Model(&models.Ticket{}).Where("id = ?", ticket.ID).Update("allocation", ticket.Allocation-purchase.Quantity)
-
-		w.Write([]byte("Purchase Complete"))
-		w.WriteHeader(http.StatusOK)
-	} else {
-		w.Write([]byte("Not available ticket allocation"))
-		w.WriteHeader(http.StatusNotFound)
-	}
 }
